@@ -385,6 +385,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
         { id: 'gallery', label: 'Galeria', icon: ImageIcon },
         { id: 'contact', label: 'Contato & Local', icon: MapPin },
         { id: 'footer', label: 'Rodapé (Links)', icon: Globe },
+        { id: 'intro', label: 'Tela de Entrada', icon: Sparkles },
         { id: 'reservations', label: 'Reservas', icon: Calendar },
     ];
 
@@ -620,6 +621,76 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                             onTextChange={(val: string) => updateField(['hero', 'title'], val)}
                                             onColorChange={(col: string) => updateField(['hero', 'titleColor'], col)}
                                         />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'intro' && (
+                            <div className="space-y-8">
+                                <div className="bg-gold/5 border border-gold/10 p-6 rounded-3xl">
+                                    <h4 className="text-lg font-bold text-gold flex items-center gap-2 mb-4">
+                                        <Sparkles className="w-5 h-5" /> Configurar Logo de Entrada (Loading)
+                                    </h4>
+                                    <div className="grid md:grid-cols-2 gap-8 items-start">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-24 h-24 bg-deep border border-white/10 rounded-full flex items-center justify-center text-4xl overflow-hidden shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+                                                    {localConfig.introLogoIsImage ? (
+                                                        <img src={localConfig.introLogo || localConfig.logo} alt="Preview" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span>{localConfig.introLogo || localConfig.logo || '🔥'}</span>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 space-y-3">
+                                                    <input
+                                                        type="text"
+                                                        value={localConfig.introLogoIsImage ? '' : (localConfig.introLogo || '')}
+                                                        onChange={(e) => {
+                                                            updateField(['introLogo'], e.target.value);
+                                                            updateField(['introLogoIsImage'], false);
+                                                        }}
+                                                        placeholder="Emoji ou Ícone"
+                                                        className={`w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none ${localConfig.introLogoIsImage ? 'opacity-30' : 'opacity-100'}`}
+                                                    />
+                                                    <label className="flex items-center justify-center gap-2 bg-gradient-to-r from-gold to-flame text-white py-2.5 rounded-xl cursor-pointer text-xs font-black shadow-lg">
+                                                        <Upload className="w-3.5 h-3.5" />
+                                                        Subir Logo PNG/JPG
+                                                        <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, ['introLogo'])} />
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div className="p-4 bg-deep/40 rounded-2xl border border-white/5">
+                                                <p className="text-[10px] text-gray-500 italic">
+                                                    DICA: Se deixar em branco, o sistema usará a logo principal do site. Use fundos transparentes (.png) para melhor efeito.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-6">
+                                            <TextEditorWithColor
+                                                label="Nome Visual na Entrada"
+                                                value={localConfig.introTitle || localConfig.hero?.title || ''}
+                                                color={localConfig.introTitleColor || localConfig.hero?.titleColor}
+                                                onTextChange={(val: string) => updateField(['introTitle'], val)}
+                                                onColorChange={(col: string) => updateField(['introTitleColor'], col)}
+                                            />
+
+                                            <div className="p-5 glass rounded-2xl border-2 border-gold/20 flex flex-col items-center">
+                                                <span className="text-[10px] uppercase font-black text-gold/60 mb-3 tracking-widest">Prévia da Intro</span>
+                                                <div className="flex items-center gap-2 text-xl font-black">
+                                                    <span style={getTextStyle(localConfig.introTitleColor || localConfig.hero?.titleColor)}>
+                                                        {(localConfig.introTitle || localConfig.hero?.title || 'Churrasqueira Amores').split(' ')[0]}
+                                                    </span>
+                                                    <span
+                                                        className={!localConfig.introTitleColor && !localConfig.hero?.titleColor ? "text-gold" : ""}
+                                                        style={getTextStyle(localConfig.introTitleColor || localConfig.hero?.titleColor)}
+                                                    >
+                                                        {(localConfig.introTitle || localConfig.hero?.title || '').split(' ').slice(1).join(' ')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

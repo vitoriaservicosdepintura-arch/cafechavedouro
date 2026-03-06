@@ -1624,10 +1624,10 @@ export default function App() {
               animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
             >
-              {config.logoIsImage ? (
-                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+              {config.introLogoIsImage || (config.introLogo === undefined && config.logoIsImage) ? (
+                <img src={config.introLogo || config.logo} alt="Logo" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-5xl">{config.logo || '🔥'}</span>
+                <span className="text-5xl">{config.introLogo || config.logo || '🔥'}</span>
               )}
             </motion.div>
             <motion.div
@@ -1636,14 +1636,14 @@ export default function App() {
               transition={{ duration: 1.5, repeat: Infinity }}
               aria-live="polite"
             >
-              <span style={getTextStyle(config.hero?.titleColor)}>
-                {(config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores'])[0]}
+              <span style={getTextStyle(config.introTitleColor || config.hero?.titleColor)}>
+                {(config.introTitle || config.hero?.title || 'Churrasqueira Amores').split(' ')[0]}
               </span>
               <span
-                className={!config.hero?.titleColor ? "text-gold" : "whitespace-nowrap"}
-                style={!config.hero?.titleColor ? {} : getTextStyle(config.hero?.titleColor)}
+                className={!(config.introTitleColor || config.hero?.titleColor) ? "text-gold" : "whitespace-nowrap"}
+                style={getTextStyle(config.introTitleColor || config.hero?.titleColor)}
               >
-                {(config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores']).slice(1).join(' ')}
+                {(config.introTitle || config.hero?.title || '').split(' ').slice(1).join(' ')}
               </span>
             </motion.div>
           </motion.div>
