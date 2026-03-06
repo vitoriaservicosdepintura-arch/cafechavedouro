@@ -364,7 +364,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Site Logo (Icone ou Foto)</label>
                                         <div className="flex flex-col gap-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-16 h-16 bg-deep border border-white/10 rounded-xl flex items-center justify-center text-2xl overflow-hidden">
+                                                <div className="w-16 h-16 bg-deep border border-white/10 rounded-xl flex items-center justify-center text-2xl overflow-hidden shadow-inner">
                                                     {localConfig.logoIsImage ? (
                                                         <img src={localConfig.logo} alt="Logo Preview" className="w-full h-full object-cover" />
                                                     ) : (
@@ -374,25 +374,40 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                                 <div className="flex-1 space-y-2">
                                                     <input
                                                         type="text"
-                                                        value={localConfig.logo}
-                                                        onChange={(e) => updateField(['logo'], e.target.value)}
-                                                        placeholder="Emoji ou URL da imagem"
-                                                        className="w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none"
+                                                        value={localConfig.logoIsImage ? '' : localConfig.logo}
+                                                        onChange={(e) => {
+                                                            updateField(['logo'], e.target.value);
+                                                            updateField(['logoIsImage'], false);
+                                                        }}
+                                                        placeholder="Emoji ou Texto"
+                                                        className="w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none disabled:opacity-50"
+                                                        disabled={localConfig.logoIsImage}
                                                     />
-                                                    <label className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 py-2 rounded-lg cursor-pointer text-xs font-bold transition-colors">
-                                                        <Upload className="w-3.5 h-3.5" />
-                                                        Upload de Foto
-                                                        <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
-                                                            await handleImageUpload(e, ['logo']);
-                                                            updateField(['logoIsImage'], true);
-                                                        }} />
-                                                    </label>
-                                                    <button
-                                                        onClick={() => updateField(['logoIsImage'], !localConfig.logoIsImage)}
-                                                        className={`w-full py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${localConfig.logoIsImage ? 'border-gold text-gold bg-gold/5' : 'border-gray-500 text-gray-500'}`}
-                                                    >
-                                                        {localConfig.logoIsImage ? 'Usando Imagem' : 'Usando Texto/Emoji'}
-                                                    </button>
+                                                    <div className="flex gap-2">
+                                                        <label className="flex-1 flex items-center justify-center gap-2 bg-gold text-deep py-2.5 rounded-xl cursor-pointer text-xs font-black transition-all hover:scale-[1.02] shadow-lg shadow-gold/20">
+                                                            <Upload className="w-3.5 h-3.5" />
+                                                            {localConfig.logoIsImage ? 'Trocar PNG' : 'Subir PNG'}
+                                                            <input type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={async (e) => {
+                                                                await handleImageUpload(e, ['logo']);
+                                                                updateField(['logoIsImage'], true);
+                                                            }} />
+                                                        </label>
+                                                        {localConfig.logoIsImage && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    updateField(['logo'], '🔥');
+                                                                    updateField(['logoIsImage'], false);
+                                                                }}
+                                                                className="px-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-xl transition-colors"
+                                                                title="Remover Foto e usar Emoji"
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[10px] text-gray-500 italic pl-1">
+                                                        {localConfig.logoIsImage ? 'Usando imagem PNG/JPG' : 'Insira um emoji ou texto acima'}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>

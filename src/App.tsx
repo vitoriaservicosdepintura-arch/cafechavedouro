@@ -1509,11 +1509,15 @@ export default function App() {
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
           >
             <motion.div
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-gold via-flame to-ember flex items-center justify-center shadow-2xl shadow-flame/40 mb-6"
+              className="w-20 h-20 rounded-full bg-gradient-to-br from-gold via-flame to-ember flex items-center justify-center shadow-2xl shadow-flame/40 mb-6 overflow-hidden"
               animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <span className="text-3xl">{config.logo || '🔥'}</span>
+              {config.logoIsImage ? (
+                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-3xl">{config.logo || '🔥'}</span>
+              )}
             </motion.div>
             <motion.p
               className="text-lg font-bold text-gradient-fire"
