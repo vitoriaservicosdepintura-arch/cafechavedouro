@@ -437,6 +437,19 @@ function Navbar({ config, onOpenAdmin }: { config: any, onOpenAdmin: () => void 
                   {link.label}
                 </motion.a>
               ))}
+              <motion.button
+                onClick={() => {
+                  setMenuOpen(false);
+                  onOpenAdmin();
+                }}
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-white/5 border border-white/10 rounded-full text-base font-bold text-gray-300 transition-all cursor-pointer"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: NAV_LINKS.length * 0.06 }}
+              >
+                <SettingsIcon className="w-4 h-4" />
+                Área Administrativa
+              </motion.button>
               <button
                 onClick={() => {
                   setMenuOpen(false);
@@ -452,6 +465,48 @@ function Navbar({ config, onOpenAdmin }: { config: any, onOpenAdmin: () => void 
         )}
       </AnimatePresence>
     </motion.nav>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE BOTTOM NAV
+   ═══════════════════════════════════════════ */
+
+function MobileBottomNav({ onOpenAdmin }: { onOpenAdmin: () => void }) {
+  return (
+    <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-sm">
+      <div className="bg-deep/80 backdrop-blur-2xl border border-white/10 rounded-full py-3 px-6 shadow-[0_15px_35px_rgba(0,0,0,0.5)] flex items-center justify-between gap-1">
+        <a href="#hero" className="flex flex-col items-center gap-1 text-gray-400 hover:text-gold transition-colors">
+          <div className="text-xl">🏠</div>
+          <span className="text-[10px] font-bold uppercase tracking-tighter">Início</span>
+        </a>
+        <a href="#menu" className="flex flex-col items-center gap-1 text-gray-400 hover:text-gold transition-colors">
+          <div className="text-xl">🍴</div>
+          <span className="text-[10px] font-bold uppercase tracking-tighter">Menu</span>
+        </a>
+
+        {/* Central Prominent Button */}
+        <button
+          onClick={() => (window as any).openReservationModal()}
+          className="relative -mt-10 w-16 h-16 bg-gradient-to-br from-gold via-flame to-ember rounded-full flex items-center justify-center shadow-2xl shadow-flame/40 border-4 border-deep active:scale-90 transition-transform"
+        >
+          <div className="text-2xl">🔥</div>
+          <div className="absolute -bottom-1 whitespace-nowrap bg-gold text-deep text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm">RESERVAR</div>
+        </button>
+
+        <a href="#contact" className="flex flex-col items-center gap-1 text-gray-400 hover:text-gold transition-colors">
+          <div className="text-xl">📍</div>
+          <span className="text-[10px] font-bold uppercase tracking-tighter">Local</span>
+        </a>
+        <button
+          onClick={onOpenAdmin}
+          className="flex flex-col items-center gap-1 text-gray-400 hover:text-gold transition-colors"
+        >
+          <div className="text-xl">⚙️</div>
+          <span className="text-[10px] font-bold uppercase tracking-tighter">Admin</span>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -1581,7 +1636,7 @@ export default function App() {
                 {(config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores'])[0]}
               </span>
               <span
-                className={!config.hero?.titleColor ? "text-gold" : ""}
+                className={!config.hero?.titleColor ? "text-gold" : "whitespace-nowrap"}
                 style={!config.hero?.titleColor ? {} : getTextStyle(config.hero?.titleColor)}
               >
                 {(config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores']).slice(1).join(' ')}
@@ -1600,6 +1655,7 @@ export default function App() {
         <Reviews />
         <Contact config={config} />
         <Footer config={config} />
+        {!showAdmin && !showReservation && <MobileBottomNav onOpenAdmin={() => setShowAdmin(true)} />}
       </div>
 
       <AnimatePresence>

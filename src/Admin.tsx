@@ -481,7 +481,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                         <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
                     </div>
 
-                    <nav className="flex flex-col gap-1.5 flex-1 overflow-y-auto no-scrollbar pb-6 pr-1">
+                    <nav className="grid grid-cols-2 md:flex md:flex-col gap-1.5 flex-1 overflow-y-auto no-scrollbar pb-6 pr-1">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
