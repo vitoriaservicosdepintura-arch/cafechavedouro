@@ -112,7 +112,8 @@ const DEFAULT_CONFIG = {
       { day: 'Domingo', time: '12:00 – 21:00' }
     ],
     phone: '282 798 417',
-    facebook: 'https://facebook.com'
+    facebook: 'https://facebook.com',
+    email: 'geral@churrasqueiraamores.pt'
   },
   footer: {
     info: [
@@ -1050,6 +1051,12 @@ function Contact({ config }: { config: any }) {
               <span className="text-lg">📘</span>
               <span className="font-semibold group-hover:underline">Facebook</span>
             </a>
+            {config.contact?.email && (
+              <a href={`mailto:${config.contact.email}`} className="flex items-center gap-3 text-gray-300 hover:text-gold transition-colors group">
+                <span className="text-lg">📧</span>
+                <span className="font-semibold group-hover:underline">{config.contact.email}</span>
+              </a>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {config.footer?.services?.map((s: string) => (
@@ -1224,8 +1231,13 @@ function Footer({ config }: { config: any }) {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">© {new Date().getFullYear()} Churrasqueira Amores Lda. Todos os direitos reservados.</p>
-          <div className="flex gap-5">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gold transition-colors text-xs font-medium">
+          <div className="flex flex-wrap gap-5 justify-center md:justify-end">
+            {config.contact?.email && (
+              <a href={`mailto:${config.contact.email}`} className="text-gray-500 hover:text-gold transition-colors text-xs font-medium">
+                Email
+              </a>
+            )}
+            <a href={config.contact?.facebook || "https://facebook.com"} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gold transition-colors text-xs font-medium">
               Facebook
             </a>
             <a

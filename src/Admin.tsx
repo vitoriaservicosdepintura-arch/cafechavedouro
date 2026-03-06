@@ -879,7 +879,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                                         className="w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none"
                                                     />
                                                 </div>
-                                                <div className="grid grid-cols-2 gap-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                     <div>
                                                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">📱 Telemóvel</label>
                                                         <input
@@ -895,6 +895,15 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                                             type="text"
                                                             value={localConfig.contact?.facebook || ''}
                                                             onChange={(e) => updateField(['contact', 'facebook'], e.target.value)}
+                                                            className="w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">📧 Email</label>
+                                                        <input
+                                                            type="email"
+                                                            value={localConfig.contact?.email || ''}
+                                                            onChange={(e) => updateField(['contact', 'email'], e.target.value)}
                                                             className="w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none"
                                                         />
                                                     </div>
