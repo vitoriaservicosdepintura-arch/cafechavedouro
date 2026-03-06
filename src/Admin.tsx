@@ -321,7 +321,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
             // Adicionar um timestamp para evitar problemas de cache no navegador
             const newUrl = `${data.publicUrl}?t=${Date.now()}`;
 
-            setLocalConfig(prev => {
+            setLocalConfig((prev: any) => {
                 const updated = JSON.parse(JSON.stringify(prev));
                 let current = updated;
                 for (let i = 0; i < path.length - 1; i++) {
@@ -348,7 +348,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
     };
 
     const updateField = (path: string[], value: any) => {
-        setLocalConfig(prev => {
+        setLocalConfig((prev: any) => {
             const updated = JSON.parse(JSON.stringify(prev));
             let current = updated;
             for (let i = 0; i < path.length - 1; i++) {
@@ -383,7 +383,8 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
         { id: 'history', label: 'A Nossa História', icon: History },
         { id: 'menu', label: 'Menu & Destaques', icon: Utensils },
         { id: 'gallery', label: 'Galeria', icon: ImageIcon },
-        { id: 'contact', label: 'Contato', icon: MapPin },
+        { id: 'contact', label: 'Contato & Local', icon: MapPin },
+        { id: 'footer', label: 'Rodapé (Links)', icon: Globe },
         { id: 'reservations', label: 'Reservas', icon: Calendar },
     ];
 
@@ -475,7 +476,12 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
 
                     <LogoPreview config={localConfig} getTextStyle={getTextStyle} />
 
-                    <nav className="flex md:flex-col gap-1.5 flex-1 overflow-x-auto md:overflow-y-auto no-scrollbar pb-2 md:pb-0">
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-4 mb-2 flex items-center justify-between">
+                        <span>Seções do Site</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+                    </div>
+
+                    <nav className="grid grid-cols-2 md:flex md:flex-col gap-2 flex-1 overflow-y-auto no-scrollbar pb-6 pr-1">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
@@ -486,12 +492,12 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                     }`}
                                 aria-label={`Abrir aba ${tab.label}`}
                             >
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
                                     <tab.icon className="w-4 h-4" />
-                                    <span className="whitespace-nowrap">{tab.label}</span>
+                                    <span className="whitespace-nowrap text-[10px] md:text-sm">{tab.label}</span>
                                 </div>
                                 {tab.id === 'reservations' && unreadCount > 0 && (
-                                    <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-lg animate-pulse">
+                                    <span className="absolute -top-1 -right-1 md:relative md:top-0 md:right-0 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-red-600 text-[9px] md:text-[10px] font-bold text-white shadow-lg animate-pulse">
                                         {unreadCount}
                                     </span>
                                 )}
@@ -578,8 +584,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                                             updateField(['logoIsImage'], false);
                                                         }}
                                                         placeholder="Emoji ou Texto"
-                                                        className="w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none disabled:opacity-50"
-                                                        disabled={localConfig.logoIsImage}
+                                                        className={`w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none transition-opacity ${localConfig.logoIsImage ? 'opacity-30' : 'opacity-100'}`}
                                                     />
                                                     <div className="flex gap-2">
                                                         <label className="flex-1 flex items-center justify-center gap-2 bg-gold text-deep py-2.5 rounded-xl cursor-pointer text-xs font-black transition-all hover:scale-[1.02] shadow-lg shadow-gold/20">
@@ -648,7 +653,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                         <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 gap-3">
                                             <label className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg cursor-pointer hover:scale-105 transition-transform text-sm font-bold shadow-lg">
                                                 <Upload className="w-4 h-4" />
-                                                Tracar Fundo
+                                                Trocar Fundo
                                                 <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, ['hero', 'bgImage'])} />
                                             </label>
 
@@ -1042,20 +1047,28 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                 <div className="space-y-6">
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <TextEditorWithColor
-                                            label="Título da Seção (Venha Conhecer-nos)"
+                                            label="Badge (Título Pequeno)"
+                                            value={localConfig.contact?.badge || ''}
+                                            color={localConfig.contact?.badgeColor}
+                                            onTextChange={(val: string) => updateField(['contact', 'badge'], val)}
+                                            onColorChange={(col: string) => updateField(['contact', 'badgeColor'], col)}
+                                        />
+                                        <TextEditorWithColor
+                                            label="Título da Seção"
                                             value={localConfig.contact?.title || ''}
                                             color={localConfig.contact?.titleColor}
                                             onTextChange={(val: string) => updateField(['contact', 'title'], val)}
                                             onColorChange={(col: string) => updateField(['contact', 'titleColor'], col)}
                                         />
-                                        <TextEditorWithColor
-                                            label="Texto Auxiliar"
-                                            value={localConfig.contact?.text || ''}
-                                            color={localConfig.contact?.textColor}
-                                            onTextChange={(val: string) => updateField(['contact', 'text'], val)}
-                                            onColorChange={(col: string) => updateField(['contact', 'textColor'], col)}
-                                        />
                                     </div>
+                                    <TextEditorWithColor
+                                        label="Subtítulo / Texto Auxiliar"
+                                        value={localConfig.contact?.text || ''}
+                                        color={localConfig.contact?.textColor}
+                                        rows={2}
+                                        onTextChange={(val: string) => updateField(['contact', 'text'], val)}
+                                        onColorChange={(col: string) => updateField(['contact', 'textColor'], col)}
+                                    />
                                 </div>
 
                                 <div className="h-px bg-white/5" />
@@ -1153,9 +1166,10 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                         </div>
                                     </div>
                                 </div>
+                        )}
 
-                                <div className="h-px bg-white/5" />
-
+                        {activeTab === 'footer' && (
+                            <div className="space-y-10 pb-10">
                                 {/* Footer Lists */}
                                 <div className="grid md:grid-cols-2 gap-10">
                                     <div className="space-y-4">
@@ -1479,12 +1493,10 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                             ))
                                         )}
                                     </div>
-                                )}
                             </div>
                         )}
                     </div>
                 </div>
             </div>
-        </div>
     );
 }
