@@ -24,6 +24,21 @@ const ADMIN_COLORS = {
     ]
 };
 
+const getTextStyle = (color: string) => {
+    if (!color) return {};
+    if (color.includes('gradient')) {
+        return {
+            background: color,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            color: 'transparent',
+            display: 'inline-block'
+        };
+    }
+    return { color };
+};
+
 interface AdminProps {
     onClose: () => void;
     config: any;
