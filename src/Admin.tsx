@@ -141,15 +141,21 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
 
             const newUrl = data.publicUrl;
 
-            // Update localConfig nested object
-            const updated = { ...localConfig };
-            let current = updated;
-            for (let i = 0; i < path.length - 1; i++) {
-                current = current[path[i]];
-            }
-            current[path[path.length - 1]] = newUrl;
+            setLocalConfig(prev => {
+                const updated = JSON.parse(JSON.stringify(prev));
+                let current = updated;
+                for (let i = 0; i < path.length - 1; i++) {
+                    current = current[path[i]];
+                }
+                current[path[path.length - 1]] = newUrl;
 
-            setLocalConfig(updated);
+                if (path[0] === 'logo') {
+                    updated.logoIsImage = true;
+                }
+
+                return updated;
+            });
+
             setMessage({ type: 'success', text: 'Imagem enviada!' });
         } catch (err: any) {
             console.error(err);
@@ -160,13 +166,15 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
     };
 
     const updateField = (path: string[], value: any) => {
-        const updated = { ...localConfig };
-        let current = updated;
-        for (let i = 0; i < path.length - 1; i++) {
-            current = current[path[i]];
-        }
-        current[path[path.length - 1]] = value;
-        setLocalConfig(updated);
+        setLocalConfig(prev => {
+            const updated = JSON.parse(JSON.stringify(prev));
+            let current = updated;
+            for (let i = 0; i < path.length - 1; i++) {
+                current = current[path[i]];
+            }
+            current[path[path.length - 1]] = value;
+            return updated;
+        });
     };
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -387,10 +395,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                                         <label className="flex-1 flex items-center justify-center gap-2 bg-gold text-deep py-2.5 rounded-xl cursor-pointer text-xs font-black transition-all hover:scale-[1.02] shadow-lg shadow-gold/20">
                                                             <Upload className="w-3.5 h-3.5" />
                                                             {localConfig.logoIsImage ? 'Trocar PNG' : 'Subir PNG'}
-                                                            <input type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={async (e) => {
-                                                                await handleImageUpload(e, ['logo']);
-                                                                updateField(['logoIsImage'], true);
-                                                            }} />
+                                                            <input type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={(e) => handleImageUpload(e, ['logo'])} />
                                                         </label>
                                                         {localConfig.logoIsImage && (
                                                             <button
