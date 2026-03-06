@@ -353,12 +353,12 @@ function Navbar({ config, onOpenAdmin }: { config: any, onOpenAdmin: () => void 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <motion.a href="#hero" className="flex items-center gap-2.5 group" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold via-flame to-ember flex items-center justify-center shadow-lg shadow-flame/30 group-hover:shadow-flame/50 transition-shadow duration-300 overflow-hidden">
+          <motion.a href="#hero" className="flex items-center gap-3 group" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold via-flame to-ember flex items-center justify-center shadow-lg shadow-flame/30 group-hover:shadow-flame/50 transition-shadow duration-300 overflow-hidden">
               {config.logoIsImage ? (
                 <img src={config.logo} alt={`Logótipo ${config.hero?.title}`} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-lg" aria-hidden="true">{config.logo || '🔥'}</span>
+                <span className="text-2xl" aria-hidden="true">{config.logo || '🔥'}</span>
               )}
             </div>
             <div className="hidden sm:block">
@@ -1200,12 +1200,12 @@ function Footer({ config }: { config: any }) {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold via-flame to-ember flex items-center justify-center shadow-lg shadow-flame/20 overflow-hidden">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold via-flame to-ember flex items-center justify-center shadow-lg shadow-flame/20 overflow-hidden">
                 {config.logoIsImage ? (
                   <img src={config.logo} alt={`Logótipo ${config.hero?.title}`} className="w-full h-full object-cover" loading="lazy" />
                 ) : (
-                  <span className="text-base" aria-hidden="true">{config.logo || '🔥'}</span>
+                  <span className="text-xl" aria-hidden="true">{config.logo || '🔥'}</span>
                 )}
               </div>
               <div>
@@ -1561,14 +1561,14 @@ export default function App() {
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
           >
             <motion.div
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-gold via-flame to-ember flex items-center justify-center shadow-2xl shadow-flame/40 mb-6 overflow-hidden"
+              className="w-28 h-28 rounded-full bg-gradient-to-br from-gold via-flame to-ember flex items-center justify-center shadow-2xl shadow-flame/40 mb-6 overflow-hidden"
               animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
             >
               {config.logoIsImage ? (
                 <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-3xl">{config.logo || '🔥'}</span>
+                <span className="text-5xl">{config.logo || '🔥'}</span>
               )}
             </motion.div>
             <motion.p
