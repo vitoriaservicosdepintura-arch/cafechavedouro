@@ -350,7 +350,7 @@ function Navbar({ config, onOpenAdmin }: { config: any, onOpenAdmin: () => void 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-deep/90 backdrop-blur-2xl shadow-2xl shadow-black/30 border-b border-white/5' : 'bg-transparent'
         }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full mx-auto px-4 md:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <motion.a href="#hero" className="flex items-center gap-3 group" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
@@ -474,36 +474,40 @@ function Navbar({ config, onOpenAdmin }: { config: any, onOpenAdmin: () => void 
 
 function MobileBottomNav({ onOpenAdmin }: { onOpenAdmin: () => void }) {
   return (
-    <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-sm">
-      <div className="bg-deep/80 backdrop-blur-2xl border border-white/10 rounded-full py-3 px-6 shadow-[0_15px_35px_rgba(0,0,0,0.5)] flex items-center justify-between gap-1">
-        <a href="#hero" className="flex flex-col items-center gap-1 text-gray-400 hover:text-gold transition-colors">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] pb-[env(safe-area-inset-bottom,20px)] pt-2 bg-gradient-to-t from-deep via-deep/95 to-transparent">
+      <div className="mx-4 mb-2 bg-surface/90 backdrop-blur-3xl border border-white/10 rounded-3xl py-3 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.6)] flex items-center justify-between gap-1">
+        <a href="#hero" className="flex flex-col items-center gap-1.5 text-gray-400 active:text-gold transition-colors flex-1">
           <div className="text-xl">🏠</div>
-          <span className="text-[10px] font-bold uppercase tracking-tighter">Início</span>
+          <span className="text-[9px] font-black uppercase tracking-tighter opacity-80">Início</span>
         </a>
-        <a href="#menu" className="flex flex-col items-center gap-1 text-gray-400 hover:text-gold transition-colors">
+        <a href="#menu" className="flex flex-col items-center gap-1.5 text-gray-400 active:text-gold transition-colors flex-1">
           <div className="text-xl">🍴</div>
-          <span className="text-[10px] font-bold uppercase tracking-tighter">Menu</span>
+          <span className="text-[9px] font-black uppercase tracking-tighter opacity-80">Menu</span>
         </a>
 
         {/* Central Prominent Button */}
-        <button
-          onClick={() => (window as any).openReservationModal()}
-          className="relative -mt-10 w-16 h-16 bg-gradient-to-br from-gold via-flame to-ember rounded-full flex items-center justify-center shadow-2xl shadow-flame/40 border-4 border-deep active:scale-90 transition-transform"
-        >
-          <div className="text-2xl">🔥</div>
-          <div className="absolute -bottom-1 whitespace-nowrap bg-gold text-deep text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm">RESERVAR</div>
-        </button>
+        <div className="relative -mt-12 flex-none">
+          <button
+            onClick={() => (window as any).openReservationModal()}
+            className="w-16 h-16 bg-gradient-to-br from-gold via-flame to-ember rounded-full flex flex-col items-center justify-center shadow-[0_10px_30px_rgba(249,115,22,0.4)] border-4 border-deep active:scale-90 transition-transform"
+          >
+            <div className="text-2xl mt-1">🔥</div>
+            <div className="bg-gold text-deep text-[8px] font-black px-1.5 py-0.5 rounded-full -mt-1 shadow-sm uppercase">Reserva</div>
+          </button>
+        </div>
 
-        <a href="#contact" className="flex flex-col items-center gap-1 text-gray-400 hover:text-gold transition-colors">
+        <a href="#contact" className="flex flex-col items-center gap-1.5 text-gray-400 active:text-gold transition-colors flex-1">
           <div className="text-xl">📍</div>
-          <span className="text-[10px] font-bold uppercase tracking-tighter">Local</span>
+          <span className="text-[9px] font-black uppercase tracking-tighter opacity-80">Local</span>
         </a>
+
+        {/* Disguised Admin/Settings Button */}
         <button
           onClick={onOpenAdmin}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-gold transition-colors"
+          className="flex flex-col items-center gap-1.5 text-gray-400 active:text-gold transition-colors flex-1"
         >
           <div className="text-xl">⚙️</div>
-          <span className="text-[10px] font-bold uppercase tracking-tighter">Admin</span>
+          <span className="text-[9px] font-black uppercase tracking-tighter opacity-80">Admin</span>
         </button>
       </div>
     </div>
