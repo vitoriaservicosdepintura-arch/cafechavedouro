@@ -1166,6 +1166,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         )}
 
                         {activeTab === 'footer' && (
@@ -1493,10 +1494,12 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                             ))
                                         )}
                                     </div>
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+        </div>
     );
 }
