@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from './supabase';
 import type { Session } from '@supabase/supabase-js';
 import {
@@ -131,31 +131,65 @@ const ColorMixer = ({ current, onChange }: { current: string, onChange: (color: 
     );
 };
 
-const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange, rows = 1 }: any) => (
-    <div className="space-y-2">
-        <div className="flex items-center justify-between px-1">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</label>
-            <ColorMixer current={color || '#ffffff'} onChange={onColorChange} />
+const AVAILABLE_FONTS = [
+    { name: 'Padrão (Montserrat)', value: '"Montserrat", sans-serif' },
+    { name: 'Cinzel (Clássico)', value: '"Cinzel", serif' },
+    { name: 'Playfair Display', value: '"Playfair Display", serif' },
+    { name: 'Dancing Script', value: '"Dancing Script", cursive' },
+    { name: 'Pacifico', value: '"Pacifico", cursive' }
+];
+
+const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange, rows = 1 }: any) => {
+    const editorRef = useRef<HTMLDivElement>(null);
+
+    const handleInput = () => {
+        if (editorRef.current) {
+            onTextChange(editorRef.current.innerHTML);
+        }
+    };
+
+    const handleFontChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const fontValue = e.target.value;
+        if (!fontValue) return;
+
+        // Ensure we are applying styles directly instead of generic font tags
+        document.execCommand('styleWithCSS', false, 'true');
+        document.execCommand('fontName', false, fontValue);
+
+        handleInput();
+
+        // Reset select to "Mudar Fonte"
+        e.target.value = "";
+    };
+
+    return (
+        <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</label>
+                <div className="flex items-center gap-2">
+                    <select
+                        onChange={handleFontChange}
+                        className="bg-deep border border-white/10 rounded-lg px-2 py-1 text-[10px] text-gray-300 outline-none focus:ring-1 focus:ring-gold cursor-pointer"
+                        title="Selecione um texto e escolha a fonte"
+                    >
+                        <option value="">Fonte da Seleção...</option>
+                        {AVAILABLE_FONTS.map(f => <option key={f.value} value={f.value}>{f.name}</option>)}
+                    </select>
+                    <ColorMixer current={color || '#ffffff'} onChange={onColorChange} />
+                </div>
+            </div>
+            <div
+                ref={editorRef}
+                contentEditable
+                onInput={handleInput}
+                onBlur={handleInput}
+                className={`w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none custom-scrollbar overflow-y-auto ${rows > 1 ? 'min-h-[100px] max-h-[300px]' : 'min-h-[46px]'}`}
+                style={{ color: !color?.includes('gradient') ? color : 'white' }}
+                dangerouslySetInnerHTML={{ __html: value || '' }}
+            />
         </div>
-        {rows > 1 ? (
-            <textarea
-                value={value}
-                onChange={(e) => onTextChange(e.target.value)}
-                rows={rows}
-                className="w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none min-h-[100px]"
-                style={{ color: !color?.includes('gradient') ? color : 'white' }}
-            />
-        ) : (
-            <input
-                type="text"
-                value={value}
-                onChange={(e) => onTextChange(e.target.value)}
-                className="w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none"
-                style={{ color: !color?.includes('gradient') ? color : 'white' }}
-            />
-        )}
-    </div>
-);
+    );
+};
 
 const LogoPreview = ({ config, getTextStyle }: { config: any, getTextStyle: any }) => {
     const siteTitleParts = config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores'];

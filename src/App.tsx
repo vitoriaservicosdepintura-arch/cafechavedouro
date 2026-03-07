@@ -338,7 +338,9 @@ function Navbar({ config, onOpenAdmin }: { config: any, onOpenAdmin: () => void 
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const siteTitleParts = config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores'];
+  const siteTitle = config.hero?.title || 'Churrasqueira Amores';
+  const hasHTML = siteTitle.includes('<');
+  const siteTitleParts = siteTitle.split(' ');
   const firstPart = siteTitleParts[0];
   const lastPart = siteTitleParts.slice(1).join(' ');
 
@@ -362,8 +364,14 @@ function Navbar({ config, onOpenAdmin }: { config: any, onOpenAdmin: () => void 
               )}
             </div>
             <div className="hidden sm:block">
-              <span className="text-base font-bold tracking-tight" style={getTextStyle(config.hero?.titleColor)}>{firstPart}</span>
-              <span className="text-gold font-extrabold ml-1" style={!config.hero?.titleColor ? {} : getTextStyle(config.hero?.titleColor)}>{lastPart}</span>
+              {hasHTML ? (
+                <span className="text-base font-bold tracking-tight" style={getTextStyle(config.hero?.titleColor)} dangerouslySetInnerHTML={{ __html: siteTitle }} />
+              ) : (
+                <>
+                  <span className="text-base font-bold tracking-tight" style={getTextStyle(config.hero?.titleColor)}>{firstPart}</span>
+                  <span className="text-gold font-extrabold ml-1" style={!config.hero?.titleColor ? {} : getTextStyle(config.hero?.titleColor)}>{lastPart}</span>
+                </>
+              )}
             </div>
           </motion.a>
 
@@ -527,7 +535,9 @@ function Hero({ config }: { config: any }) {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '60%']);
 
-  const titleParts = config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores'];
+  const siteTitle = config.hero?.title || 'Churrasqueira Amores';
+  const hasHTML = siteTitle.includes('<');
+  const titleParts = siteTitle.split(' ');
   const firstPart = titleParts[0];
   const lastPart = titleParts.slice(1).join(' ');
 
@@ -562,24 +572,30 @@ function Hero({ config }: { config: any }) {
         <motion.div initial={{ opacity: 0, scale: 0.7, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="mb-8">
           <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold/10 border border-gold/25 rounded-full text-gold text-sm font-semibold backdrop-blur-sm shadow-lg shadow-gold/5" style={getTextStyle(config.hero?.badgeColor)}>
             <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-            {config.hero?.badge}
+            <span dangerouslySetInnerHTML={{ __html: config.hero?.badge || '' }} />
           </span>
         </motion.div>
 
         {/* Title */}
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }} className="mb-6 px-2">
-          <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.9] tracking-tight text-white" style={getTextStyle(config.hero?.titleColor)}>
-            {firstPart}
-          </span>
-          <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.9] tracking-tight text-gradient-fire mt-2" style={!config.hero?.titleColor ? {} : getTextStyle(config.hero?.titleColor)}>
-            {lastPart}
-          </span>
+          {hasHTML ? (
+            <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.9] tracking-tight text-white [&>font]:!leading-normal" style={getTextStyle(config.hero?.titleColor)} dangerouslySetInnerHTML={{ __html: siteTitle }} />
+          ) : (
+            <>
+              <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.9] tracking-tight text-white" style={getTextStyle(config.hero?.titleColor)}>
+                {firstPart}
+              </span>
+              <span className="block text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black leading-[0.9] tracking-tight text-gradient-fire mt-2" style={!config.hero?.titleColor ? {} : getTextStyle(config.hero?.titleColor)}>
+                {lastPart}
+              </span>
+            </>
+          )}
         </motion.h1>
 
         {/* Subtitle */}
-        <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.7 }} className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mb-6 leading-relaxed" style={getTextStyle(config.hero?.subtitleColor)}>
-          {config.hero?.subtitle}
-        </motion.p>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.7 }} className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mb-6 leading-relaxed" style={getTextStyle(config.hero?.subtitleColor)}>
+          <div dangerouslySetInnerHTML={{ __html: config.hero?.subtitle || '' }} />
+        </motion.div>
 
         {/* Rating */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.9 }} className="flex flex-wrap items-center justify-center gap-3 mb-10">
@@ -1650,15 +1666,26 @@ export default function App() {
               transition={{ duration: 1.5, repeat: Infinity }}
               aria-live="polite"
             >
-              <span style={getTextStyle(config.introTitleColor || config.hero?.titleColor)}>
-                {(config.introTitle || config.hero?.title || 'Churrasqueira Amores').split(' ')[0]}
-              </span>
-              <span
-                className={!(config.introTitleColor || config.hero?.titleColor) ? "text-gold" : "whitespace-nowrap"}
-                style={getTextStyle(config.introTitleColor || config.hero?.titleColor)}
-              >
-                {(config.introTitle || config.hero?.title || '').split(' ').slice(1).join(' ')}
-              </span>
+              {(() => {
+                const titleStr = config.introTitle || config.hero?.title || 'Churrasqueira Amores';
+                if (titleStr.includes('<')) {
+                  return <span style={getTextStyle(config.introTitleColor || config.hero?.titleColor)} dangerouslySetInnerHTML={{ __html: titleStr }} />;
+                }
+                const parts = titleStr.split(' ');
+                return (
+                  <>
+                    <span style={getTextStyle(config.introTitleColor || config.hero?.titleColor)}>
+                      {parts[0]}
+                    </span>
+                    <span
+                      className={!(config.introTitleColor || config.hero?.titleColor) ? "text-gold" : "whitespace-nowrap"}
+                      style={getTextStyle(config.introTitleColor || config.hero?.titleColor)}
+                    >
+                      {parts.slice(1).join(' ')}
+                    </span>
+                  </>
+                );
+              })()}
             </motion.div>
           </motion.div>
         )}
