@@ -133,8 +133,12 @@ const ColorMixer = ({ current, onChange }: { current: string, onChange: (color: 
 
 const AVAILABLE_FONTS = [
     { name: 'Padrão (Montserrat)', value: '"Montserrat", sans-serif' },
+    { name: 'Inter (Clean & Moderno)', value: '"Inter", sans-serif' },
+    { name: 'Poppins (Arredondado)', value: '"Poppins", sans-serif' },
+    { name: 'Playfair Display (Serifa)', value: '"Playfair Display", serif' },
+    { name: 'Instrument Serif (Luxo)', value: '"Instrument Serif", serif' },
+    { name: 'Bricolage Grotesque (Ousada)', value: '"Bricolage Grotesque", sans-serif' },
     { name: 'Cinzel (Clássico)', value: '"Cinzel", serif' },
-    { name: 'Playfair Display', value: '"Playfair Display", serif' },
     { name: 'Dancing Script', value: '"Dancing Script", cursive' },
     { name: 'Pacifico', value: '"Pacifico", cursive' }
 ];
@@ -224,9 +228,10 @@ const LogoPreview = ({ config, getTextStyle }: { config: any, getTextStyle: any 
 };
 
 export default function Admin({ onClose, config, onUpdate }: AdminProps) {
-    const [activeTab, setActiveTab] = useState('general');
+    const [activeTab, setActiveTab] = useState('editor');
     const [localConfig, setLocalConfig] = useState(config);
     const [isSaving, setIsSaving] = useState(false);
+    const [selectedEditorSection, setSelectedEditorSection] = useState('hero.title');
     const [reservations, setReservations] = useState<any[]>([]);
     const [selectedReservation, setSelectedReservation] = useState<any | null>(null);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -414,6 +419,7 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
     };
 
     const tabs = [
+        { id: 'editor', label: 'Editor', icon: Edit3 },
         { id: 'general', label: 'Geral', icon: Settings },
         { id: 'hero', label: 'Banner Principal', icon: ImageIcon },
         { id: 'history', label: 'A Nossa História', icon: History },
@@ -606,6 +612,84 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                                 }`}>
                                 {message.type === 'success' ? <Edit3 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                                 <span className="text-sm font-medium">{message.text}</span>
+                            </div>
+                        )}
+
+                        {activeTab === 'editor' && (
+                            <div className="space-y-6">
+                                <div className="p-6 bg-deep/40 rounded-3xl border border-white/5 space-y-6">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                                            <Edit3 className="w-5 h-5 text-gold" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white">Editor Centralizado</h3>
+                                            <p className="text-xs text-gray-400">Edite as fontes principais de qualquer seção</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Seção a Editar</label>
+                                        <div className="relative">
+                                            <select
+                                                value={selectedEditorSection}
+                                                onChange={(e) => setSelectedEditorSection(e.target.value)}
+                                                className="w-full bg-surface border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white appearance-none outline-none focus:border-gold transition-colors cursor-pointer shadow-lg"
+                                            >
+                                                <option value="hero.title">Nome Principal (Site)</option>
+                                                <option value="hero.subtitle">Banner Principal (Subtítulo)</option>
+                                                <option value="introTitle">Tela de Entrada (Loading)</option>
+                                                <option value="about.title">A Nossa História (Título)</option>
+                                                <option value="about.text1">A Nossa História (Texto Principal)</option>
+                                                <option value="menu.title">Menu & Destaques (Título)</option>
+                                                <option value="gallery.title">Galeria (Título)</option>
+                                                <option value="contact.title">Contato & Local (Título)</option>
+                                                <option value="footer.text">Rodapé (Texto Sobre)</option>
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                <div className="w-2 h-2 border-r-2 border-b-2 border-gray-400 rotate-45" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-white/5">
+                                        {(() => {
+                                            const secParts = selectedEditorSection.split('.');
+                                            const isTopLvl = secParts.length === 1;
+                                            const sectionObj = isTopLvl ? null : localConfig[secParts[0]];
+                                            const textValue = isTopLvl ? localConfig[secParts[0]] : sectionObj?.[secParts[1]];
+
+                                            const colorKey = isTopLvl ? `${secParts[0]}Color` : `${secParts[1]}Color`;
+                                            const colorValue = isTopLvl ? localConfig[colorKey] : sectionObj?.[colorKey];
+
+                                            const handleText = (val: string) => {
+                                                if (isTopLvl) updateField([secParts[0]], val);
+                                                else updateField([secParts[0], secParts[1]], val);
+                                            };
+                                            const handleColor = (col: string) => {
+                                                if (isTopLvl) updateField([colorKey], col);
+                                                else updateField([secParts[0], colorKey], col);
+                                            }
+
+                                            return (
+                                                <TextEditorWithColor
+                                                    label="Conteúdo Formatado"
+                                                    value={textValue || ''}
+                                                    color={colorValue}
+                                                    rows={4}
+                                                    onTextChange={handleText}
+                                                    onColorChange={handleColor}
+                                                />
+                                            )
+                                        })()}
+                                    </div>
+                                    <div className="flex items-start gap-3 p-4 bg-gold/5 border border-gold/10 rounded-xl">
+                                        <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                                        <p className="text-[11px] text-gray-300 leading-relaxed">
+                                            Selecione uma palavra ou trecho acima e use o botão <strong className="text-white">Fonte da Seleção</strong> para aplicar tipografias avançadas de 2026 (como Instrument Serif, Inter, Poppins) a pedaços de texto.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
