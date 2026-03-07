@@ -1532,8 +1532,8 @@ function ReservationModal({ config, onClose }: { config: any, onClose: () => voi
                   >
                     <option value="">Selecione...</option>
                     {config.menuItems?.map((item: any) => (
-                      <option key={item.id} value={`${item.name} - €${Number(item.price).toFixed(2)}`}>
-                        {item.name} - €{Number(item.price).toFixed(2)}
+                      <option key={item.id} value={`${item.name} - ${item.price}`}>
+                        {item.name} - {item.price}
                       </option>
                     ))}
                   </select>
