@@ -331,6 +331,8 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
 
                 if (path[0] === 'logo') {
                     updated.logoIsImage = true;
+                } else if (path[0] === 'introLogo') {
+                    updated.introLogoIsImage = true;
                 }
 
                 return updated;
