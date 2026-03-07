@@ -132,19 +132,73 @@ const ColorMixer = ({ current, onChange }: { current: string, onChange: (color: 
 };
 
 const AVAILABLE_FONTS = [
-    { name: 'Padrão (Montserrat)', value: '"Montserrat", sans-serif' },
-    { name: 'Inter (Clean & Moderno)', value: '"Inter", sans-serif' },
-    { name: 'Poppins (Arredondado)', value: '"Poppins", sans-serif' },
-    { name: 'Playfair Display (Serifa)', value: '"Playfair Display", serif' },
-    { name: 'Instrument Serif (Luxo)', value: '"Instrument Serif", serif' },
-    { name: 'Bricolage Grotesque (Ousada)', value: '"Bricolage Grotesque", sans-serif' },
-    { name: 'Cinzel (Clássico)', value: '"Cinzel", serif' },
-    { name: 'Dancing Script', value: '"Dancing Script", cursive' },
-    { name: 'Pacifico', value: '"Pacifico", cursive' }
+    // Modernas & Clean
+    { name: 'Montserrat (Padrão)', value: 'Montserrat' },
+    { name: 'Inter (Clean)', value: 'Inter' },
+    { name: 'Poppins (Arredondada)', value: 'Poppins' },
+    { name: 'Raleway (Elegante)', value: 'Raleway' },
+    { name: 'Exo 2 (Futurista)', value: 'Exo 2' },
+    // Luxo & Editorial
+    { name: 'Cormorant Garamond (Luxo)', value: 'Cormorant Garamond' },
+    { name: 'Bodoni Moda (Vogue Style)', value: 'Bodoni Moda' },
+    { name: 'Playfair Display (Editorial)', value: 'Playfair Display' },
+    { name: 'Instrument Serif (Premium)', value: 'Instrument Serif' },
+    { name: 'Marcellus (Serifas Finas)', value: 'Marcellus' },
+    { name: 'Prata (Graciosa)', value: 'Prata' },
+    { name: 'Lora (Literária)', value: 'Lora' },
+    { name: 'Crimson Text (Clássica)', value: 'Crimson Text' },
+    // Clássicas Imponentes
+    { name: 'Cinzel (Imperial)', value: 'Cinzel' },
+    { name: 'Bricolage Grotesque (Ousada)', value: 'Bricolage Grotesque' },
+    // Cursivas & Dinâmicas
+    { name: 'Great Vibes (Sofisticada)', value: 'Great Vibes' },
+    { name: 'Dancing Script (Manuscrita)', value: 'Dancing Script' },
+    { name: 'Pacifico (Descontraída)', value: 'Pacifico' },
+];
+
+const VIVID_COLORS_QUICK = [
+    '#ffffff', '#f59e0b', '#f97316', '#ef4444',
+    '#ec4899', '#8b5cf6', '#2563eb', '#10b981',
+    '#000000', '#1e1b4b', '#7f1d1d', '#14532d',
 ];
 
 const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange, rows = 1 }: any) => {
     const editorRef = useRef<HTMLDivElement>(null);
+    const savedSelectionRef = useRef<Range | null>(null);
+    const [currentFont, setCurrentFont] = useState('');
+    const [showColorPicker, setShowColorPicker] = useState(false);
+    const [selectionColor, setSelectionColor] = useState('#f59e0b');
+    const colorPickerRef = useRef<HTMLDivElement>(null);
+
+    // Save current selection before any button click steals focus
+    const saveSelection = () => {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+            savedSelectionRef.current = sel.getRangeAt(0).cloneRange();
+        }
+    };
+
+    // Restore saved selection
+    const restoreSelection = () => {
+        const sel = window.getSelection();
+        if (sel && savedSelectionRef.current) {
+            sel.removeAllRanges();
+            sel.addRange(savedSelectionRef.current);
+        }
+    };
+
+    // Detect font under cursor and reflect in dropdown
+    const detectCurrentFont = () => {
+        const fontAtCursor = document.queryCommandValue('fontName');
+        if (fontAtCursor) {
+            // Strip any quotes from the font name
+            const clean = fontAtCursor.replace(/"/g, '').trim();
+            const matched = AVAILABLE_FONTS.find(f => clean.toLowerCase().startsWith(f.value.toLowerCase()));
+            setCurrentFont(matched ? matched.value : '');
+        } else {
+            setCurrentFont('');
+        }
+    };
 
     const handleInput = () => {
         if (editorRef.current) {
@@ -152,48 +206,141 @@ const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange,
         }
     };
 
-    const handleFontChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const fontValue = e.target.value;
+    const applyFont = (fontValue: string) => {
         if (!fontValue) return;
-
-        // Ensure we are applying styles directly instead of generic font tags
+        restoreSelection();
         document.execCommand('styleWithCSS', false, 'true');
+        // Wrap in the font-family using a span via CSS
         document.execCommand('fontName', false, fontValue);
-
+        // Replace generic <font face=> tags with span style
         handleInput();
-
-        // Reset select to "Mudar Fonte"
-        e.target.value = "";
+        setCurrentFont(fontValue);
     };
+
+    const applySelectionColor = (hexColor: string) => {
+        restoreSelection();
+        document.execCommand('styleWithCSS', false, 'true');
+        document.execCommand('foreColor', false, hexColor);
+        handleInput();
+        setSelectionColor(hexColor);
+        setShowColorPicker(false);
+    };
+
+    // Sync from parent value to editor DOM
+    useEffect(() => {
+        if (editorRef.current && editorRef.current.innerHTML !== value) {
+            editorRef.current.innerHTML = value || '';
+        }
+    }, [value]);
 
     return (
         <div className="space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+            <div className="flex flex-col gap-2 px-1">
                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">{label}</label>
-                <div className="flex items-center gap-2">
-                    <select
-                        onChange={handleFontChange}
-                        className="bg-deep border border-white/10 rounded-lg px-2 py-1 text-[10px] text-gray-300 outline-none focus:ring-1 focus:ring-gold cursor-pointer"
-                        title="Selecione um texto e escolha a fonte"
-                    >
-                        <option value="">Fonte da Seleção...</option>
-                        {AVAILABLE_FONTS.map(f => <option key={f.value} value={f.value}>{f.name}</option>)}
-                    </select>
+
+                {/* Toolbar Row */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {/* Font selector */}
+                    <div className="relative flex-1 min-w-[160px]">
+                        <select
+                            value={currentFont}
+                            onChange={(e) => {
+                                const v = e.target.value;
+                                if (!v) return;
+                                applyFont(v);
+                            }}
+                            onFocus={saveSelection}
+                            className="w-full bg-deep border border-white/10 rounded-lg px-3 py-2 text-[11px] text-white outline-none focus:ring-1 focus:ring-gold cursor-pointer appearance-none"
+                            style={currentFont ? { fontFamily: currentFont } : {}}
+                        >
+                            <option value="">-- Selecionar Fonte --</option>
+                            {AVAILABLE_FONTS.map(f => (
+                                <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                                    {f.name}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <div className="w-2 h-2 border-r border-b border-gray-400 rotate-45" />
+                        </div>
+                    </div>
+
+                    {/* Inline color (for selected text) */}
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onMouseDown={(e) => { e.preventDefault(); saveSelection(); setShowColorPicker(prev => !prev); }}
+                            className="flex items-center gap-1.5 px-3 py-2 bg-deep border border-white/10 rounded-lg text-[11px] text-white hover:border-gold/40 transition-colors"
+                            title="Cor da seleção de texto"
+                        >
+                            <span
+                                className="w-4 h-4 rounded-full border border-white/20 shrink-0"
+                                style={{ background: selectionColor }}
+                            />
+                            <span>Cor da Seleção</span>
+                        </button>
+                        {showColorPicker && (
+                            <>
+                                <div className="fixed inset-0 z-[400]" onClick={() => setShowColorPicker(false)} />
+                                <div ref={colorPickerRef} className="absolute top-full right-0 mt-2 z-[401] w-56 bg-surface rounded-2xl p-4 shadow-2xl border border-white/10 animate-in fade-in zoom-in duration-200 space-y-3">
+                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Cor da Seleção</p>
+                                    <div className="grid grid-cols-6 gap-2">
+                                        {VIVID_COLORS_QUICK.map(c => (
+                                            <button
+                                                key={c}
+                                                type="button"
+                                                onMouseDown={(e) => { e.preventDefault(); applySelectionColor(c); }}
+                                                className="w-7 h-7 rounded-lg hover:scale-110 transition-transform border border-white/10"
+                                                style={{ background: c }}
+                                                title={c}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] text-gray-400">Hex:</span>
+                                        <input
+                                            type="color"
+                                            value={selectionColor}
+                                            onChange={(e) => setSelectionColor(e.target.value)}
+                                            onBlur={(e) => applySelectionColor(e.target.value)}
+                                            className="w-10 h-8 rounded cursor-pointer border-0 bg-transparent"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={selectionColor}
+                                            onChange={(e) => setSelectionColor(e.target.value)}
+                                            onKeyDown={(e) => { if (e.key === 'Enter') applySelectionColor(selectionColor); }}
+                                            className="flex-1 bg-deep border border-white/10 rounded-lg px-2 py-1 text-[11px] text-white outline-none focus:ring-1 focus:ring-gold"
+                                            placeholder="#f59e0b"
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Global section color */}
                     <ColorMixer current={color || '#ffffff'} onChange={onColorChange} />
                 </div>
             </div>
+
+            {/* Editable area */}
             <div
                 ref={editorRef}
                 contentEditable
+                suppressContentEditableWarning
                 onInput={handleInput}
                 onBlur={handleInput}
-                className={`w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none custom-scrollbar overflow-y-auto ${rows > 1 ? 'min-h-[100px] max-h-[300px]' : 'min-h-[46px]'}`}
-                style={{ color: !color?.includes('gradient') ? color : 'white' }}
-                dangerouslySetInnerHTML={{ __html: value || '' }}
+                onMouseUp={detectCurrentFont}
+                onKeyUp={detectCurrentFont}
+                onMouseDown={saveSelection}
+                className={`w-full bg-deep border border-white/5 rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-gold outline-none custom-scrollbar overflow-y-auto ${rows > 1 ? 'min-h-[120px] max-h-[350px]' : 'min-h-[48px]'}`}
+                style={{ color: !color?.includes('gradient') ? (color || '#fff') : 'white' }}
             />
         </div>
     );
 };
+
 
 const LogoPreview = ({ config, getTextStyle }: { config: any, getTextStyle: any }) => {
     const siteTitleParts = config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores'];
