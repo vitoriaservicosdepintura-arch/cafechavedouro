@@ -461,54 +461,67 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
     }
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center md:p-4 bg-deep/90 md:bg-transparent">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md hidden md:block" onClick={onClose} />
 
             {/* Container */}
-            <div className="relative bg-surface w-full max-w-7xl h-[92vh] rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.6)] border border-white/10 flex flex-col md:flex-row">
+            <div className="relative bg-surface w-full h-full md:max-w-7xl md:h-[92vh] md:rounded-3xl overflow-hidden shadow-none md:shadow-[0_0_60px_rgba(0,0,0,0.6)] border-0 md:border border-white/10 flex flex-col-reverse md:flex-row">
 
-                {/* Sidebar */}
-                <div className="w-full md:w-64 bg-deep/50 border-b md:border-b-0 md:border-r border-white/5 p-4 md:p-6 flex flex-col shrink-0">
-                    <div className="flex items-center gap-3 mb-4 px-2">
+                {/* Sidebar (Bottom Nav on Mobile, Sidebar on Desktop) */}
+                <div className="w-full md:w-64 bg-deep/95 md:bg-deep/50 border-t md:border-t-0 md:border-r border-white/10 p-3 md:p-6 flex flex-col shrink-0 z-50 pb-[env(safe-area-inset-bottom,16px)]">
+                    <div className="hidden md:flex items-center gap-3 mb-4 px-2">
                         <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center shrink-0">
                             <Settings className="w-4 h-4 text-gold" />
                         </div>
                         <h2 className="text-lg font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent truncate">Painel Adm</h2>
                     </div>
 
-                    <LogoPreview config={localConfig} getTextStyle={getTextStyle} />
+                    <div className="hidden md:block">
+                        <LogoPreview config={localConfig} getTextStyle={getTextStyle} />
+                    </div>
 
-                    <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2 flex items-center justify-between">
+                    <div className="hidden md:flex text-[9px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2 items-center justify-between">
                         <span>Seções do Site</span>
                         <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
                     </div>
 
-                    <nav className="grid grid-cols-2 md:flex md:flex-col gap-1.5 flex-1 overflow-y-auto no-scrollbar pb-6 pr-1">
+                    <nav className="flex flex-row md:flex-col gap-2 md:gap-1.5 flex-none overflow-x-auto overflow-y-hidden md:overflow-y-auto no-scrollbar pb-1 md:pb-6 snap-x scroll-smooth outline-none touch-pan-x items-center md:items-stretch">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 min-w-fit md:min-w-0 ${activeTab === tab.id
-                                    ? 'bg-gold/10 text-gold shadow-[inset_0_0_20px_rgba(245,158,11,0.05)] border border-gold/20'
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+                                className={`snap-center flex flex-col md:flex-row items-center justify-center md:justify-start px-3 py-2 md:px-4 md:py-3 rounded-2xl md:rounded-xl text-[10px] md:text-sm font-medium transition-all duration-300 min-w-[72px] md:min-w-0 shrink-0 ${activeTab === tab.id
+                                    ? 'bg-gradient-to-br from-gold/20 to-flame/20 text-gold md:shadow-[inset_0_0_20px_rgba(245,158,11,0.05)] border border-gold/30 md:border-gold/20'
+                                    : 'text-gray-400 hover:text-white md:hover:bg-white/5 border border-transparent'
                                     }`}
                                 aria-label={`Abrir aba ${tab.label}`}
                             >
-                                <div className="flex items-center gap-3">
-                                    <tab.icon className="w-4 h-4 shrink-0" />
-                                    <span className="whitespace-nowrap text-xs md:text-sm">{tab.label}</span>
+                                <div className="flex flex-col md:flex-row items-center gap-1.5 md:gap-3 relative">
+                                    <tab.icon className={`w-5 h-5 md:w-4 md:h-4 shrink-0 transition-transform ${activeTab === tab.id ? 'scale-110 md:scale-100' : ''}`} />
+                                    <span className={`whitespace-nowrap md:text-xs lg:text-sm ${activeTab === tab.id ? 'font-black opacity-100 md:font-medium' : 'opacity-80 md:opacity-100'}`}>{tab.label}</span>
+                                    {tab.id === 'reservations' && unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-2 md:relative md:top-0 md:right-0 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-red-600 text-[9px] md:text-[10px] font-bold text-white shadow-lg animate-pulse">
+                                            {unreadCount}
+                                        </span>
+                                    )}
                                 </div>
-                                {tab.id === 'reservations' && unreadCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 md:relative md:top-0 md:right-0 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-red-600 text-[9px] md:text-[10px] font-bold text-white shadow-lg animate-pulse">
-                                        {unreadCount}
-                                    </span>
-                                )}
                             </button>
                         ))}
+                        {/* Mobile Logout Button */}
+                        <button
+                            onClick={handleLogout}
+                            className="md:hidden snap-center flex flex-col items-center justify-center px-3 py-2 rounded-2xl text-[10px] font-medium transition-all duration-300 min-w-[72px] shrink-0 text-red-500 hover:bg-red-500/10"
+                            aria-label="Sair da Conta"
+                        >
+                            <div className="flex flex-col items-center gap-1.5">
+                                <LogOut className="w-5 h-5 shrink-0" />
+                                <span className="opacity-80">Sair</span>
+                            </div>
+                        </button>
                     </nav>
 
-                    <div className="mt-auto pt-6 border-t border-white/5 space-y-2">
+                    <div className="hidden md:block mt-auto pt-6 border-t border-white/5 space-y-2">
                         <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors"
@@ -527,21 +540,29 @@ export default function Admin({ onClose, config, onUpdate }: AdminProps) {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 flex flex-col min-w-0">
+                <div className="flex-1 flex flex-col min-w-0 h-full">
                     {/* Header Area */}
-                    <div className="p-6 border-b border-white/5 flex items-center justify-between gap-4">
-                        <div>
-                            <h3 className="text-lg font-bold text-white capitalize">{tabs.find(t => t.id === activeTab)?.label}</h3>
-                            <p className="text-xs text-gray-400 mt-1">Gerencie o conteúdo e configurações desta seção.</p>
+                    <div className="p-4 md:p-6 border-b border-white/5 flex items-center justify-between gap-4 sticky top-0 bg-surface/95 backdrop-blur-xl z-20 pt-[calc(env(safe-area-inset-top,16px)+16px)] md:pt-6">
+                        <div className="flex items-center gap-3 md:gap-0">
+                            <button onClick={onClose} className="md:hidden w-10 h-10 bg-white/10 rounded-full flex items-center justify-center shadow-md active:scale-90 border border-white/10 shrink-0">
+                                <X className="w-5 h-5 text-gray-300" />
+                            </button>
+                            <div>
+                                <h3 className="text-lg font-black md:font-bold text-white capitalize">{tabs.find(t => t.id === activeTab)?.label}</h3>
+                                <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Gerencie o conteúdo e configurações desta seção.</p>
+                            </div>
                         </div>
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving}
-                            className="flex items-center gap-2 bg-gradient-to-r from-gold to-flame text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-flame/20 hover:shadow-flame/40 transition-all disabled:opacity-50 group shrink-0"
-                        >
-                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                            Salvar Alterações
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="flex items-center justify-center gap-2 bg-gradient-to-r from-gold to-flame text-white px-4 py-2.5 md:px-5 rounded-2xl md:rounded-xl font-black text-sm shadow-lg shadow-flame/20 hover:shadow-flame/40 transition-all disabled:opacity-50 active:scale-95"
+                            >
+                                {isSaving ? <Loader2 className="w-4 h-4 md:w-4 md:h-4 animate-spin" /> : <Save className="w-5 h-5 md:w-4 md:h-4" />}
+                                <span className="hidden md:inline">Salvar Alterações</span>
+                                <span className="inline md:hidden uppercase tracking-widest text-[10px]">Salvar</span>
+                            </button>
+                        </div>
                     </div>
 
                     {/* Scrollable Content */}
