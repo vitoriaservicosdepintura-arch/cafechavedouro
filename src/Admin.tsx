@@ -45,12 +45,12 @@ interface AdminProps {
     onUpdate: (newConfig: any) => void;
 }
 
-const ColorMixer = ({ current, onChange }: { current: string, onChange: (color: string) => void }) => {
+const ColorMixer = ({ current, onChange, onOpen }: { current: string, onChange: (color: string) => void, onOpen?: () => void }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div className="relative">
             <button
-                onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}
+                onMouseDown={(e) => { e.preventDefault(); onOpen?.(); setIsOpen(!isOpen); }}
                 className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border-2 transition-all shadow-[0_8px_20px_-8px_rgba(0,0,0,0.3)] group ${isOpen ? 'bg-gold border-gold text-deep scale-105' : 'bg-deep/80 border-white/10 text-gold hover:border-gold/40 hover:scale-[1.03]'
                     }`}
                 style={{ background: !isOpen && current.includes('gradient') ? current : '' }}
@@ -166,11 +166,8 @@ const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange,
     const editorRef = useRef<HTMLDivElement>(null);
     const savedSelectionRef = useRef<Range | null>(null);
     const [currentFont, setCurrentFont] = useState('');
-    const [showColorPicker, setShowColorPicker] = useState(false);
-    const [selectionColor, setSelectionColor] = useState('#f59e0b');
-    const colorPickerRef = useRef<HTMLDivElement>(null);
 
-    // Save current selection before any button click steals focus
+    // Save current selection before any button/control click steals focus
     const saveSelection = () => {
         const sel = window.getSelection();
         if (sel && sel.rangeCount > 0) {
@@ -180,6 +177,8 @@ const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange,
 
     // Restore saved selection
     const restoreSelection = () => {
+        if (!editorRef.current) return;
+        editorRef.current.focus();
         const sel = window.getSelection();
         if (sel && savedSelectionRef.current) {
             sel.removeAllRanges();
@@ -191,7 +190,6 @@ const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange,
     const detectCurrentFont = () => {
         const fontAtCursor = document.queryCommandValue('fontName');
         if (fontAtCursor) {
-            // Strip any quotes from the font name
             const clean = fontAtCursor.replace(/"/g, '').trim();
             const matched = AVAILABLE_FONTS.find(f => clean.toLowerCase().startsWith(f.value.toLowerCase()));
             setCurrentFont(matched ? matched.value : '');
@@ -210,20 +208,18 @@ const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange,
         if (!fontValue) return;
         restoreSelection();
         document.execCommand('styleWithCSS', false, 'true');
-        // Wrap in the font-family using a span via CSS
         document.execCommand('fontName', false, fontValue);
-        // Replace generic <font face=> tags with span style
         handleInput();
         setCurrentFont(fontValue);
     };
 
-    const applySelectionColor = (hexColor: string) => {
+    // Apply color to SELECTED text via foreColor. Also calls onColorChange for global preview.
+    const applyColorToSelection = (hexColor: string) => {
         restoreSelection();
         document.execCommand('styleWithCSS', false, 'true');
         document.execCommand('foreColor', false, hexColor);
         handleInput();
-        setSelectionColor(hexColor);
-        setShowColorPicker(false);
+        onColorChange(hexColor); // keep global preview in sync
     };
 
     // Sync from parent value to editor DOM
@@ -249,7 +245,7 @@ const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange,
                                 if (!v) return;
                                 applyFont(v);
                             }}
-                            onFocus={saveSelection}
+                            onMouseDown={saveSelection}
                             className="w-full bg-deep border border-white/10 rounded-lg px-3 py-2 text-[11px] text-white outline-none focus:ring-1 focus:ring-gold cursor-pointer appearance-none"
                             style={currentFont ? { fontFamily: currentFont } : {}}
                         >
@@ -265,62 +261,14 @@ const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange,
                         </div>
                     </div>
 
-                    {/* Inline color (for selected text) */}
-                    <div className="relative">
-                        <button
-                            type="button"
-                            onMouseDown={(e) => { e.preventDefault(); saveSelection(); setShowColorPicker(prev => !prev); }}
-                            className="flex items-center gap-1.5 px-3 py-2 bg-deep border border-white/10 rounded-lg text-[11px] text-white hover:border-gold/40 transition-colors"
-                            title="Cor da seleção de texto"
-                        >
-                            <span
-                                className="w-4 h-4 rounded-full border border-white/20 shrink-0"
-                                style={{ background: selectionColor }}
-                            />
-                            <span>Cor da Seleção</span>
-                        </button>
-                        {showColorPicker && (
-                            <>
-                                <div className="fixed inset-0 z-[400]" onClick={() => setShowColorPicker(false)} />
-                                <div ref={colorPickerRef} className="absolute top-full right-0 mt-2 z-[401] w-56 bg-surface rounded-2xl p-4 shadow-2xl border border-white/10 animate-in fade-in zoom-in duration-200 space-y-3">
-                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Cor da Seleção</p>
-                                    <div className="grid grid-cols-6 gap-2">
-                                        {VIVID_COLORS_QUICK.map(c => (
-                                            <button
-                                                key={c}
-                                                type="button"
-                                                onMouseDown={(e) => { e.preventDefault(); applySelectionColor(c); }}
-                                                className="w-7 h-7 rounded-lg hover:scale-110 transition-transform border border-white/10"
-                                                style={{ background: c }}
-                                                title={c}
-                                            />
-                                        ))}
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] text-gray-400">Hex:</span>
-                                        <input
-                                            type="color"
-                                            value={selectionColor}
-                                            onChange={(e) => setSelectionColor(e.target.value)}
-                                            onBlur={(e) => applySelectionColor(e.target.value)}
-                                            className="w-10 h-8 rounded cursor-pointer border-0 bg-transparent"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={selectionColor}
-                                            onChange={(e) => setSelectionColor(e.target.value)}
-                                            onKeyDown={(e) => { if (e.key === 'Enter') applySelectionColor(selectionColor); }}
-                                            className="flex-1 bg-deep border border-white/10 rounded-lg px-2 py-1 text-[11px] text-white outline-none focus:ring-1 focus:ring-gold"
-                                            placeholder="#f59e0b"
-                                        />
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Global section color */}
-                    <ColorMixer current={color || '#ffffff'} onChange={onColorChange} />
+                    {/* Estúdio de Cores Vivas — applies foreColor to selection */}
+                    <ColorMixer
+                        current={color || '#ffffff'}
+                        onChange={(c: string) => {
+                            applyColorToSelection(c);
+                        }}
+                        onOpen={saveSelection}
+                    />
                 </div>
             </div>
 
@@ -343,9 +291,8 @@ const TextEditorWithColor = ({ label, value, color, onTextChange, onColorChange,
 
 
 const LogoPreview = ({ config, getTextStyle }: { config: any, getTextStyle: any }) => {
-    const siteTitleParts = config.hero?.title?.split(' ') || ['Churrasqueira', 'Amores'];
-    const firstPart = siteTitleParts[0];
-    const lastPart = siteTitleParts.slice(1).join(' ');
+    const titleRaw = config.hero?.title || 'Churrasqueira Amores';
+    const hasHTML = titleRaw.includes('<');
 
     return (
         <div className="flex items-center gap-3 p-3 mb-4 bg-deep/30 rounded-2xl border border-white/5 shadow-inner">
@@ -353,20 +300,29 @@ const LogoPreview = ({ config, getTextStyle }: { config: any, getTextStyle: any 
                 {config.logoIsImage ? (
                     <img src={config.logo} alt="Logo Preview" className="w-full h-full object-cover" />
                 ) : (
-                    <span className="text-2xl">{config.logo || '🔥'}</span>
+                    <span className="text-2xl">{config.logo || '\uD83D\uDD25'}</span>
                 )}
             </div>
             <div className="text-left min-w-0">
-                <div className="text-xs font-black flex flex-wrap gap-1 leading-tight">
-                    <span style={getTextStyle(config.hero?.titleColor)} className="whitespace-nowrap overflow-hidden text-ellipsis">
-                        {firstPart}
-                    </span>
-                    <span
-                        className={!config.hero?.titleColor ? "text-gold" : "whitespace-nowrap overflow-hidden text-ellipsis"}
-                        style={!config.hero?.titleColor ? {} : getTextStyle(config.hero?.titleColor)}
-                    >
-                        {lastPart}
-                    </span>
+                <div className="text-xs font-black leading-tight overflow-hidden">
+                    {hasHTML ? (
+                        <span
+                            style={getTextStyle(config.hero?.titleColor)}
+                            dangerouslySetInnerHTML={{ __html: titleRaw }}
+                        />
+                    ) : (
+                        <>
+                            <span style={getTextStyle(config.hero?.titleColor)} className="mr-1">
+                                {titleRaw.split(' ')[0]}
+                            </span>
+                            <span
+                                className={!config.hero?.titleColor ? 'text-gold' : ''}
+                                style={!config.hero?.titleColor ? {} : getTextStyle(config.hero?.titleColor)}
+                            >
+                                {titleRaw.split(' ').slice(1).join(' ')}
+                            </span>
+                        </>
+                    )}
                 </div>
                 <p className="text-[8px] text-gray-500 uppercase tracking-widest mt-0.5 font-bold truncate">Pré-visualização Intro</p>
             </div>
